@@ -11,30 +11,74 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <style>
-        :root { --md-primary: #6366f1; --md-secondary: #8b5cf6; --md-success: #10b981; --md-error: #ef4444; --md-warning: #f59e0b; --md-surface: #ffffff; --md-background: #f8fafc; --md-text: #1e293b; --md-border: #e2e8f0; --md-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); --md-radius: 24px; }
-        body { font-family: 'Heebo', sans-serif; margin: 0; }
-        #app-container { max-width: 480px; margin: 0 auto; background: var(--md-background); min-height: 100vh; }
-        .header { background: linear-gradient(135deg, var(--md-primary), var(--md-secondary)); padding: 2rem 1.5rem; text-align: center; color: white; }
-        .logo-maya { width: 140px; height: 140px; border-radius: 50%; margin: 0 auto 1rem; background: white; padding: 5px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        :root { --md-primary: #6366f1; --md-secondary: #8b5cf6; --md-success: #10b981; --md-text: #1e293b; --md-border: #e2e8f0; --md-radius: 24px; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Heebo', sans-serif;
+            height: 100%;
+            overflow: hidden; /* מונע גלילה של כל הדף */
+        }
+        #app-container { 
+            max-width: 480px; 
+            margin: 0 auto; 
+            background: var(--md-background); 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .header { 
+            background: linear-gradient(135deg, var(--md-primary), var(--md-secondary)); 
+            padding: 1rem;
+            text-align: center; 
+            color: white;
+            flex-shrink: 0;
+        }
+        .logo-maya { 
+            width: 80px; 
+            height: 80px; 
+            border-radius: 50%; 
+            margin: 0 auto 0.75rem; 
+            background: white; 
+            padding: 4px; 
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2); 
+        }
         .logo-maya img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
-        .title { font-size: 1.5rem; font-weight: 700; }
-        .subtitle { font-size: 1rem; opacity: 0.9; }
-        .search-container { padding: 1rem; }
-        .search-box { display: flex; align-items: center; border-radius: var(--md-radius); padding: 0.75rem 1rem; border: 2px solid var(--md-border); }
+        .title { font-size: 1.3rem; font-weight: 700; }
+        .subtitle { font-size: 0.9rem; opacity: 0.9; }
+        .search-container { 
+            padding: 0.75rem 1rem; 
+            background: var(--md-surface); 
+            border-bottom: 1px solid var(--md-border);
+            flex-shrink: 0;
+        }
+        .search-box { display: flex; align-items: center; border-radius: var(--md-radius); padding: 0.5rem 1rem; border: 2px solid var(--md-border); }
         .search-icon { margin-left: 0.5rem; }
-        .search-input { flex: 1; border: none; outline: none; background: transparent; }
-        .map-container { height: 60vh; margin: 1rem; border-radius: var(--md-radius); overflow: hidden; position: relative; }
+        .search-input { flex: 1; border: none; outline: none; background: transparent; font-size: 1rem; }
+        .map-container { 
+            flex-grow: 1; 
+            position: relative; 
+        }
         #map { height: 100%; width: 100%; background-color: #e2e8f0; }
-        .participant-count { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.9); padding: 0.5rem 1rem; border-radius: 20px; z-index: 401; }
-        .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--md-surface); }
+        .participant-count { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.95); padding: 0.5rem 1rem; border-radius: 20px; z-index: 401; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: opacity 0.5s ease-in-out; }
+        .reset-view-fab { position: absolute; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; background: white; color: var(--md-primary); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip { 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            border-radius: 12px;
+        }
         .popup-box { padding: 1rem; text-align: center; }
-        .popup-name { font-weight: 700; font-size: 1.3rem; color: var(--md-primary); }
-        .popup-phone { direction: ltr; margin: 0.25rem 0; }
-        .popup-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1rem; }
-        .popup-btn { padding: 0.6rem; border-radius: 10px; text-decoration: none; color: white !important; display: flex; align-items: center; justify-content: center; gap: 0.4rem; border: none; font-family: 'Heebo', sans-serif; }
+        .popup-name { font-weight: 700; font-size: 1.4rem; color: var(--md-primary); margin-bottom: 0.5rem; }
+        .popup-city { font-size: 1.1rem; font-weight: 500; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .popup-phone { direction: ltr; font-size: 1.1rem; margin-bottom: 1.25rem; font-weight: 500; }
+        .popup-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .popup-btn { padding: 0.75rem; border-radius: 12px; text-decoration: none; color: white !important; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; font-family: 'Heebo', sans-serif; font-size: 1rem; font-weight: 500; }
+        .popup-btn .material-symbols-outlined { font-size: 1.2rem; }
         .popup-btn.phone { background: var(--md-primary); }
         .popup-btn.whatsapp { background: var(--md-success); }
-        .popup-btn.carpool { background: #374151; grid-column: 1 / -1; }
+        .popup-btn.carpool { background: #374151; grid-column: 1 / -1; margin-top: 0.5rem; }
     </style>
 </head>
 <body>
@@ -52,7 +96,8 @@
         </div>
         <div class="map-container">
             <div id="map"></div>
-            <div class="participant-count"><span id="participant-count">טוען...</span></div>
+            <div class="participant-count" style="opacity: 0;"><span id="participant-count"></span></div>
+            <button id="reset-view-fab" class="reset-view-fab" title="מרכז מפה"><span class="material-symbols-outlined">explore</span></button>
         </div>
     </div>
 
@@ -64,14 +109,15 @@
 
         let allParticipants = [];
         const map = L.map('map').setView([31.5, 34.75], 8);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
         const markers = L.markerClusterGroup();
         map.addLayer(markers);
+        const modernMarkerIcon = L.divIcon({ className: 'modern-marker', html: `<div style="width:30px;height:30px;background:#6366f1;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 4px 10px rgba(0,0,0,0.3);"></div>`, iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
 
         async function loadData() {
             try {
                 const response = await fetch(SHEETDB_API_URL);
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) throw new Error('תקלה בגישה לנתונים');
                 const data = await response.json();
                 
                 allParticipants = data.map(p => ({
@@ -82,13 +128,21 @@
                 renderMarkers(allParticipants);
             } catch (error) {
                 console.error("Error fetching data:", error);
-                document.getElementById('participant-count').textContent = 'שגיאה בטעינה';
+                const countDiv = document.querySelector('.participant-count');
+                countDiv.style.opacity = 1;
+                countDiv.querySelector('span').textContent = 'שגיאה בטעינה';
             }
         }
 
         function renderMarkers(participantsToRender) {
             markers.clearLayers();
-            document.getElementById('participant-count').textContent = `${participantsToRender.length} משתתפים`;
+            
+            const countDiv = document.querySelector('.participant-count');
+            countDiv.style.opacity = 1;
+            countDiv.querySelector('span').textContent = `${participantsToRender.length} משתתפים`;
+            setTimeout(() => {
+                countDiv.style.opacity = 0;
+            }, 3000);
             
             function getDistance(lat1, lon1, lat2, lon2) {
                 if (typeof lat1 !== 'number' || typeof lon1 !== 'number' || typeof lat2 !== 'number' || typeof lon2 !== 'number') return Infinity;
@@ -114,34 +168,36 @@
                     let carpoolButton = '';
                     if (nearbyParticipant && typeof whatsappNum === 'string' && whatsappNum.length > 0) {
                         const carpoolMessage = encodeURIComponent(`היי, ראיתי שאנחנו גרים קרוב. רוצה לתאם נסיעה משותפת למשלחת של מאיה?`);
-                        carpoolButton = `<a href="https://wa.me/972${whatsappNum.replace(/^0/,'')}?text=${carpoolMessage}" class="popup-btn carpool" target="_blank">הצע נסיעה משותפת</a>`;
+                        carpoolButton = `<a href="https://wa.me/972${whatsappNum.replace(/^0/,'')}?text=${carpoolMessage}" class="popup-btn carpool" target="_blank"><span class="material-symbols-outlined">directions_car</span>הצע נסיעה משותפת</a>`;
                     }
                     
                     let whatsappButton = '';
                     if (typeof whatsappNum === 'string' && whatsappNum.length > 0) {
                         const message = encodeURIComponent(`היי ${p.name}, אני מהמשלחת של מאיה.`);
-                        whatsappButton = `<a href="https://wa.me/972${whatsappNum.replace(/^0/,'')}?text=${message}" class="popup-btn whatsapp" target="_blank">שלח וואטסאפ</a>`;
+                        whatsappButton = `<a href="https://wa.me/972${whatsappNum.replace(/^0/,'')}?text=${message}" class="popup-btn whatsapp" target="_blank"><span class="material-symbols-outlined">chat</span>שלח וואטסאפ</a>`;
                     }
+
+                    const telLink = `tel:0${p.phone}`;
 
                     const popupContent = `
                         <div class="popup-box">
                             <div class="popup-name">${p.name}</div>
-                            <div>${p.city}</div>
-                            <div class="popup-phone">📞 ${p.phone}</div>
+                            <div class="popup-city"><span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: -3px;">location_on</span> ${p.city}</div>
+                            <div class="popup-phone">📞 0${p.phone}</div>
                             <div class="popup-btns">
-                                <a href="tel:${p.phone}" class="popup-btn phone" target="_blank">חייג</a>
+                                <a href="${telLink}" class="popup-btn phone" target="_blank"><span class="material-symbols-outlined">call</span>חייג</a>
                                 ${whatsappButton}
                                 ${carpoolButton}
                             </div>
                         </div>`;
                         
-                    L.marker([lat, lon]).bindPopup(popupContent).addTo(markers);
+                    L.marker([lat, lon], {icon: modernMarkerIcon}).bindPopup(popupContent).addTo(markers);
                 }
             });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (SHEETDB_API_URL === 'הדבק כאן את קישור ה-API שלך מ-SheetDB') {
+            if (SHEETDB_API_URL.includes('הדבק כאן')) {
                 alert('אנא הכנס את קישור ה-API מ-SheetDB בקוד!');
                 return;
             }
@@ -152,10 +208,14 @@
                 const query = e.target.value.toLowerCase();
                 const filtered = allParticipants.filter(p => 
                     p.name.toLowerCase().includes(query) ||
-                    p.city.toLowerCase().includes(query)
+                    (p.city && p.city.toLowerCase().includes(query))
                 );
                 renderMarkers(filtered);
             });
+
+            document.getElementById('reset-view-fab').onclick = () => {
+                map.setView([31.5, 34.75], 8);
+            };
         });
     </script>
 </body>
