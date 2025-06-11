@@ -26,12 +26,11 @@
             --md-radius-xl: 28px;
         }
         
-        /* === תיקון פריסה ראשי === */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* מונע גלילה של כל הדף */
+            overflow: hidden;
         }
 
         body { 
@@ -53,7 +52,7 @@
             padding: 1.5rem 1rem 1rem 1rem; 
             text-align: center; 
             border-bottom: 1px solid var(--md-surface-variant);
-            flex-shrink: 0; /* מונע מהכותרת להתכווץ */
+            flex-shrink: 0;
         }
 
         .logo-maya { 
@@ -71,7 +70,7 @@
 
         .search-container { 
             padding: 1rem; 
-            flex-shrink: 0; /* מונע מהחיפוש להתכווץ */
+            flex-shrink: 0;
         }
         .search-box { 
             display: flex; 
@@ -86,9 +85,9 @@
         .search-input { flex: 1; border: none; outline: none; background: transparent; font-size: 1rem; }
 
         .map-container { 
-            flex-grow: 1; /* המפה תתפשט ותמלא את כל הגובה הפנוי */
+            flex-grow: 1;
             position: relative; 
-            min-height: 200px; /* גובה מינימלי למניעת קריסה */
+            min-height: 200px;
         }
         #map { height: 100%; width: 100%; background-color: #e5e5e5; }
         
@@ -104,10 +103,8 @@
             z-index: 1000; 
             box-shadow: var(--md-shadow-2);
         }
-        .reset-view-fab { 
-            bottom: 20px; 
-            left: 20px; /* הזזה שמאלה כדי לפנות מקום לזום */
-        }
+        .reset-view-fab { bottom: 20px; left: 20px; }
+        .refresh-fab { bottom: 90px; left: 20px; }
 
         .leaflet-popup-content-wrapper { 
             background: var(--md-surface);
@@ -117,28 +114,41 @@
         }
         .leaflet-popup-tip { display: none; }
         .leaflet-popup-close-button {
-            font-size: 24px !important; 
-            width: 40px !important; height: 40px !important; 
-            top: 12px !important; right: 12px !important;
-            color: var(--md-on-surface-variant) !important;
+            font-size: 0 !important;
+            width: 44px !important; 
+            height: 44px !important; 
+            top: 12px !important;
+            right: 12px !important;
             border-radius: 50%;
             background-color: transparent !important;
             transition: background-color 0.2s;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
         }
-        .leaflet-popup-close-button:hover { background-color: rgba(0,0,0,0.05) !important; }
+        .leaflet-popup-close-button:hover { background-color: rgba(0,0,0,0.08) !important; }
+        .leaflet-popup-close-button::before {
+            content: 'close';
+            font-family: 'Material Symbols Outlined';
+            font-size: 24px;
+            line-height: 1;
+            color: var(--md-on-surface-variant);
+        }
 
         .popup-box { text-align: right; }
         .popup-header {
             padding: 1.25rem;
+            padding-left: 3rem; 
         }
         .popup-name { font-weight: 700; font-size: 1.4rem; color: var(--md-on-surface); margin-bottom: 0.25rem; }
         .popup-city { font-size: 1rem; color: var(--md-on-surface-variant); }
 
         .popup-actions {
             border-top: 1px solid var(--md-surface-variant);
-            padding: 0.75rem 1.25rem;
+            padding: 0.75rem 1rem;
             display: flex;
-            gap: 1.5rem;
+            justify-content: space-around;
+            gap: 1rem;
         }
         .action-btn {
             display: flex;
@@ -149,14 +159,23 @@
             color: var(--md-primary);
             font-weight: 500;
             font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: var(--md-radius-m);
+            transition: background-color 0.2s;
         }
+        .action-btn:hover { background-color: rgba(0,0,0,0.05); }
         .action-btn .icon-circle {
-            width: 48px; height: 48px;
+            width: 48px; 
+            height: 48px;
             border-radius: 50%;
             background: #eaf0ff;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .action-btn .icon-circle .material-symbols-outlined {
+            font-size: 24px;
+            color: var(--md-primary);
         }
     </style>
 </head>
@@ -176,6 +195,7 @@
         <div class="map-container">
             <div id="map"></div>
             <button id="reset-view-fab" class="floating-btn reset-view-fab" title="מרכז מפה"><span class="material-symbols-outlined">explore</span></button>
+            <button id="refresh-data-btn" class="floating-btn refresh-fab" title="רענן נתונים"><span class="material-symbols-outlined">refresh</span></button>
         </div>
     </div>
 
@@ -185,7 +205,6 @@
     <script>
         const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/sbhyvkuopsbjk';
         const GOOGLE_MAPS_API_KEY = 'AIzaSyCEo0QBID_qOEivVCmbcg8Z_YYY4cIjwj0';
-        const AUTO_REFRESH_INTERVAL = 600000;
 
         let allParticipants = [];
         const map = L.map('map', {
@@ -208,7 +227,7 @@
         async function loadData() {
             try {
                 console.log("🔥 טוען נתונים מ-SheetDB...");
-                const response = await fetch(SHEETDB_API_URL);
+                const response = await fetch(`${SHEETDB_API_URL}?t=${new Date().getTime()}`);
                 if (!response.ok) throw new Error('תקלה בגישה לנתונים');
                 const data = await response.json();
                 
@@ -282,7 +301,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
-            setInterval(loadData, AUTO_REFRESH_INTERVAL);
             
             const searchInput = document.getElementById('search-input');
             searchInput.addEventListener('input', (e) => {
@@ -302,6 +320,10 @@
             searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { searchInput.blur(); } });
 
             document.getElementById('reset-view-fab').onclick = () => { map.setView([31.5, 34.75], 8); };
+            
+            document.getElementById('refresh-data-btn').onclick = () => {
+                loadData();
+            };
         });
     </script>
 </body>
