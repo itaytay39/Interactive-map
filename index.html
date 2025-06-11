@@ -104,7 +104,6 @@
             box-shadow: var(--md-shadow-2);
         }
         .reset-view-fab { bottom: 20px; left: 20px; }
-        .refresh-fab { bottom: 90px; left: 20px; }
 
         .leaflet-popup-content-wrapper { 
             background: var(--md-surface);
@@ -195,7 +194,6 @@
         <div class="map-container">
             <div id="map"></div>
             <button id="reset-view-fab" class="floating-btn reset-view-fab" title="מרכז מפה"><span class="material-symbols-outlined">explore</span></button>
-            <button id="refresh-data-btn" class="floating-btn refresh-fab" title="רענן נתונים"><span class="material-symbols-outlined">refresh</span></button>
         </div>
     </div>
 
@@ -205,6 +203,7 @@
     <script>
         const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/sbhyvkuopsbjk';
         const GOOGLE_MAPS_API_KEY = 'AIzaSyCEo0QBID_qOEivVCmbcg8Z_YYY4cIjwj0';
+        const AUTO_REFRESH_INTERVAL = 600000; // 10 דקות
 
         let allParticipants = [];
         const map = L.map('map', {
@@ -301,6 +300,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
+            setInterval(loadData, AUTO_REFRESH_INTERVAL);
             
             const searchInput = document.getElementById('search-input');
             searchInput.addEventListener('input', (e) => {
@@ -320,10 +320,6 @@
             searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { searchInput.blur(); } });
 
             document.getElementById('reset-view-fab').onclick = () => { map.setView([31.5, 34.75], 8); };
-            
-            document.getElementById('refresh-data-btn').onclick = () => {
-                loadData();
-            };
         });
     </script>
 </body>
