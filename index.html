@@ -12,17 +12,15 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <style>
         :root { 
-            --md-primary-container: #e0e0ff;
-            --md-on-primary-container: #000d65;
-            --md-secondary-container: #e2dffb;
-            --md-on-secondary-container: #1b1848;
-            --md-surface: #fefbff;
-            --md-surface-variant: #f0eff4;
+            --md-primary: #4A55A2;
+            --md-secondary: #7895CB;
+            --md-surface: #ffffff;
+            --md-surface-variant: #f0f4f9;
             --md-on-surface: #1c1b1f;
-            --md-on-surface-variant: #46464f;
-            --md-outline: #777680;
+            --md-on-surface-variant: #44474f;
+            --md-outline: #74777f;
             --md-shadow-1: 0 1px 2px rgba(0,0,0,0.1);
-            --md-shadow-2: 0 2px 6px 2px rgba(0,0,0,0.1);
+            --md-shadow-2: 0 3px 8px rgba(0,0,0,0.12);
             --md-radius-m: 12px;
             --md-radius-l: 16px;
             --md-radius-xl: 28px;
@@ -53,8 +51,7 @@
         }
 
         .logo-maya { 
-            width: 100px; 
-            height: 100px; 
+            width: 100px; height: 100px; 
             border-radius: 50%; 
             margin: 0 auto 1rem; 
             background: white; 
@@ -63,7 +60,7 @@
         }
         .logo-maya img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
 
-        .title { font-size: 1.5rem; font-weight: 700; }
+        .title { font-size: 1.5rem; font-weight: 700; color: var(--md-primary); }
         .subtitle { font-size: 1rem; color: var(--md-on-surface-variant); }
 
         .search-container { padding: 1rem; background: var(--md-surface); }
@@ -75,59 +72,39 @@
             padding: 0.75rem 1.25rem; 
             border: 1px solid transparent; 
         }
-        .search-box:focus-within { background: var(--md-surface); border-color: var(--md-primary-container); }
+        .search-box:focus-within { background: var(--md-surface); border-color: var(--md-secondary); }
         .search-icon { margin-left: 0.75rem; color: var(--md-on-surface-variant); }
         .search-input { flex: 1; border: none; outline: none; background: transparent; font-size: 1rem; }
 
-        .map-container { 
-            height: calc(100vh - 200px);
-            position: relative; 
-        }
+        .map-container { height: calc(100vh - 200px); position: relative; }
         #map { height: 100%; width: 100%; background-color: #e5e5e5; }
         
-        .participant-count { 
+        .floating-btn {
             position: absolute; 
-            top: 1rem; 
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--md-secondary-container);
-            color: var(--md-on-secondary-container);
-            padding: 0.5rem 1rem; 
-            border-radius: var(--md-radius-m); 
-            z-index: 401; 
-            box-shadow: var(--md-shadow-2);
-            transition: opacity 0.5s ease-in-out, transform 0.3s ease;
-            font-weight: 500;
-        }
-        .reset-view-fab { 
-            position: absolute; 
-            bottom: 20px; 
-            left: 20px; /* שינוי: הזזת כפתור הריסט לצד שמאל */
-            width: 56px; 
-            height: 56px; 
+            width: 56px; height: 56px; 
             border-radius: var(--md-radius-l); 
-            background: var(--md-primary-container); 
-            color: var(--md-on-primary-container); 
-            border: none; 
+            background: var(--md-surface);
+            color: var(--md-on-surface-variant);
+            border: 1px solid var(--md-outline);
             cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
+            display: flex; align-items: center; justify-content: center; 
             z-index: 1000; 
             box-shadow: var(--md-shadow-2);
         }
+        .reset-view-fab { bottom: 20px; left: 20px; }
 
-        .leaflet-popup-content-wrapper, .leaflet-popup-tip { 
+        /* === עיצוב פופאפ חדש בהשראת גוגל מפות === */
+        .leaflet-popup-content-wrapper { 
             background: var(--md-surface);
             box-shadow: var(--md-shadow-2);
-            border-radius: var(--md-radius-l) !important;
+            border-radius: var(--md-radius-xl) !important;
+            padding: 0 !important;
         }
+        .leaflet-popup-tip { display: none; }
         .leaflet-popup-close-button {
             font-size: 24px !important; 
-            width: 40px !important; 
-            height: 40px !important; 
-            top: 8px !important;
-            right: 8px !important;
+            width: 40px !important; height: 40px !important; 
+            top: 12px !important; right: 12px !important;
             color: var(--md-on-surface-variant) !important;
             border-radius: 50%;
             background-color: transparent !important;
@@ -135,33 +112,36 @@
         }
         .leaflet-popup-close-button:hover { background-color: rgba(0,0,0,0.05) !important; }
 
-        .popup-box { padding: 1.25rem; text-align: center; }
-        .popup-name { font-weight: 700; font-size: 1.4rem; color: var(--md-on-surface); margin-bottom: 0.5rem; }
-        .popup-city { font-size: 1rem; color: var(--md-on-surface-variant); display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .popup-btns { display: grid; grid-template-columns: 1fr; gap: 0.75rem; margin-top: 1rem; }
-        .popup-btn { 
-            padding: 0.75rem; 
-            border-radius: var(--md-radius-m); 
-            text-decoration: none; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 0.75rem; 
-            border: none; 
-            font-family: 'Heebo', sans-serif; 
-            font-size: 1rem; 
-            font-weight: 500; 
-            cursor: pointer;
-            transition: background-color 0.2s;
+        .popup-box { text-align: right; }
+        .popup-header {
+            padding: 1.25rem;
         }
-        .popup-btn .material-symbols-outlined { font-size: 1.2rem; }
-        .popup-btn.phone { 
-            background: var(--md-primary-container); 
-            color: var(--md-on-primary-container) !important; 
+        .popup-name { font-weight: 700; font-size: 1.4rem; color: var(--md-on-surface); margin-bottom: 0.25rem; }
+        .popup-city { font-size: 1rem; color: var(--md-on-surface-variant); }
+
+        .popup-actions {
+            border-top: 1px solid var(--md-surface-variant);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            gap: 1.5rem;
         }
-        .popup-btn.whatsapp, .popup-btn.carpool {
-            background: var(--md-secondary-container);
-            color: var(--md-on-secondary-container) !important;
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--md-primary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .action-btn .icon-circle {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: #eaf0ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -180,8 +160,7 @@
         </div>
         <div class="map-container">
             <div id="map"></div>
-            <div class="participant-count" style="opacity: 0;"><span id="participant-count"></span></div>
-            <button id="reset-view-fab" class="reset-view-fab" title="מרכז מפה"><span class="material-symbols-outlined">explore</span></button>
+            <button id="reset-view-fab" class="floating-btn" title="מרכז מפה"><span class="material-symbols-outlined">explore</span></button>
         </div>
     </div>
 
@@ -191,15 +170,14 @@
     <script>
         const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/sbhyvkuopsbjk';
         const GOOGLE_MAPS_API_KEY = 'AIzaSyCEo0QBID_qOEivVCmbcg8Z_YYY4cIjwj0';
+        const AUTO_REFRESH_INTERVAL = 600000; // 10 דקות במילישניות
 
         let allParticipants = [];
         const map = L.map('map', {
             zoomControl: false 
         }).setView([31.5, 34.75], 8);
         
-        L.control.zoom({
-            position: 'bottomright'
-        }).addTo(map);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
 
         L.tileLayer(`https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_API_KEY}`, {
             maxZoom: 20,
@@ -210,10 +188,11 @@
         const markers = L.markerClusterGroup();
         map.addLayer(markers);
         
-        const modernMarkerIcon = L.divIcon({ className: 'modern-marker', html: `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="white" style="filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));"/><circle cx="16" cy="16" r="12" fill="#6366f1"/></svg>`, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] });
+        const modernMarkerIcon = L.divIcon({ className: 'modern-marker', html: `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="white" style="filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));"/><circle cx="16" cy="16" r="12" fill="#4A55A2"/></svg>`, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] });
 
         async function loadData() {
             try {
+                console.log("🔥 טוען נתונים מ-SheetDB...");
                 const response = await fetch(SHEETDB_API_URL);
                 if (!response.ok) throw new Error('תקלה בגישה לנתונים');
                 const data = await response.json();
@@ -224,21 +203,14 @@
                 })).filter(p => p.lat && p.lon);
                 
                 renderMarkers(allParticipants);
+                console.log(`✅ טעינה הושלמה. ${allParticipants.length} משתתפים.`);
             } catch (error) {
                 console.error("Error fetching data:", error);
-                const countDiv = document.querySelector('.participant-count');
-                countDiv.style.opacity = 1;
-                countDiv.querySelector('span').textContent = 'שגיאה בטעינה';
             }
         }
 
         function renderMarkers(participantsToRender) {
             markers.clearLayers();
-            
-            const countDiv = document.querySelector('.participant-count');
-            countDiv.style.opacity = 1;
-            countDiv.querySelector('span').textContent = `${participantsToRender.length} משתתפים`;
-            setTimeout(() => { countDiv.style.opacity = 0; }, 3000);
             
             function getDistance(lat1, lon1, lat2, lon2) {
                 if (typeof lat1 !== 'number' || typeof lon1 !== 'number' || typeof lat2 !== 'number' || typeof lon2 !== 'number') return Infinity;
@@ -265,23 +237,25 @@
                 let carpoolButton = '';
                 if (nearbyParticipant && typeof whatsappNum === 'string' && whatsappNum.length > 0) {
                     const carpoolMessage = encodeURIComponent(`היי, ראיתי שאנחנו גרים קרוב. רוצה לתאם נסיעה משותפת למשלחת של מאיה?`);
-                    carpoolButton = `<a href="https://wa.me/972${whatsappNum.replace(/^0/,'')}?text=${carpoolMessage}" class="popup-btn carpool" target="_blank"><span class="material-symbols-outlined">directions_car</span>הצע נסיעה משותפת</a>`;
+                    carpoolButton = `<a href="https://wa.me/972${whatsappNum.replace(/^0/,'')}?text=${carpoolMessage}" class="action-btn" target="_blank"><div class="icon-circle"><span class="material-symbols-outlined">directions_car</span></div><span>נסיעה משותפת</span></a>`;
                 }
                 
                 let whatsappButton = '';
                 if (typeof whatsappNum === 'string' && whatsappNum.length > 0) {
                     const message = encodeURIComponent(`היי ${p.name}, אני מהמשלחת של מאיה.`);
-                    whatsappButton = `<a href="https://wa.me/972${whatsappNum.replace(/^0/,'')}?text=${message}" class="popup-btn whatsapp" target="_blank"><span class="material-symbols-outlined">chat</span>שלח וואטסאפ</a>`;
+                    whatsappButton = `<a href="https://wa.me/972${whatsappNum.replace(/^0/,'')}?text=${message}" class="action-btn" target="_blank"><div class="icon-circle"><span class="material-symbols-outlined">chat</span></div><span>וואטסאפ</span></a>`;
                 }
 
                 const telLink = `tel:0${p.phone}`;
 
                 const popupContent = `
                     <div class="popup-box">
-                        <div class="popup-name">${p.name}</div>
-                        <div class="popup-city"><span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: -3px;">location_on</span> ${p.city}</div>
-                        <div class="popup-btns">
-                            <a href="${telLink}" class="popup-btn phone" target="_blank"><span class="material-symbols-outlined">call</span>חייג 0${p.phone}</a>
+                        <div class="popup-header">
+                            <div class="popup-name">${p.name}</div>
+                            <div class="popup-city">${p.city}</div>
+                        </div>
+                        <div class="popup-actions">
+                            <a href="${telLink}" class="action-btn" target="_blank"><div class="icon-circle"><span class="material-symbols-outlined">call</span></div><span>חייג</span></a>
                             ${whatsappButton}
                             ${carpoolButton}
                         </div>
@@ -293,6 +267,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
+            setInterval(loadData, AUTO_REFRESH_INTERVAL);
             
             const searchInput = document.getElementById('search-input');
             searchInput.addEventListener('input', (e) => {
@@ -308,18 +283,10 @@
                 renderMarkers(filtered);
             });
 
-            searchInput.addEventListener('search', () => {
-                searchInput.blur();
-            });
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    searchInput.blur();
-                }
-            });
+            searchInput.addEventListener('search', () => { searchInput.blur(); });
+            searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { searchInput.blur(); } });
 
-            document.getElementById('reset-view-fab').onclick = () => {
-                map.setView([31.5, 34.75], 8);
-            };
+            document.getElementById('reset-view-fab').onclick = () => { map.setView([31.5, 34.75], 8); };
         });
     </script>
 </body>
