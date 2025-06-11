@@ -105,7 +105,6 @@
         }
         .reset-view-fab { bottom: 20px; left: 20px; }
 
-        /* === עיצוב פופאפ חדש ומדויק === */
         .leaflet-popup-content-wrapper { 
             background: var(--md-surface);
             box-shadow: var(--md-shadow-2);
@@ -137,38 +136,46 @@
 
         .popup-box { text-align: right; }
         .popup-header {
-            padding: 1.25rem;
-            padding-left: 3.5rem; 
+            padding: 1.5rem; /* הגדלת ריווח כללי */
+            padding-left: 48px; 
         }
-        .popup-name { font-weight: 700; font-size: 1.4rem; color: var(--md-on-surface); margin-bottom: 0.25rem; }
-        .popup-city { font-size: 1rem; color: var(--md-on-surface-variant); }
+        .popup-name { 
+            font-weight: 700; 
+            font-size: 1.5rem; /* הגדלת שם המשתתף */
+            color: var(--md-on-surface); 
+            margin-bottom: 0.25rem; 
+        }
+        .popup-city { 
+            font-size: 1.1rem; /* הגדלת שם העיר */
+            color: var(--md-on-surface-variant); 
+        }
 
         .popup-actions {
             border-top: 1px solid var(--md-surface-variant);
-            padding: 0.75rem 1rem;
+            padding: 1rem;
             display: flex;
             justify-content: space-around;
-            gap: 1rem;
         }
         .action-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.5rem; /* הגדלת רווח בין אייקון לטקסט */
             text-decoration: none;
             color: var(--md-primary);
             font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             padding: 0.5rem;
             border-radius: var(--md-radius-m);
             transition: background-color 0.2s;
             flex: 1;
             min-width: 80px;
+            text-align: center;
         }
-        .action-btn:hover { background-color: rgba(0,0,0,0.05); }
+        .action-btn:hover { background-color: rgba(74, 85, 162, 0.1); }
         .action-btn .icon-circle {
-            width: 48px; 
-            height: 48px;
+            width: 52px; /* הגדלת העיגול */
+            height: 52px;
             border-radius: 50%;
             background: #eaf0ff;
             display: flex;
@@ -176,7 +183,7 @@
             justify-content: center;
         }
         .action-btn .icon-circle .material-symbols-outlined {
-            font-size: 24px;
+            font-size: 26px; /* הגדלת האייקון */
             color: var(--md-primary);
         }
     </style>
@@ -206,7 +213,7 @@
     <script>
         const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/sbhyvkuopsbjk';
         const GOOGLE_MAPS_API_KEY = 'AIzaSyCEo0QBID_qOEivVCmbcg8Z_YYY4cIjwj0';
-        const AUTO_REFRESH_INTERVAL = 600000; // 10 דקות
+        const AUTO_REFRESH_INTERVAL = 600000;
 
         let allParticipants = [];
         const map = L.map('map', {
@@ -280,7 +287,7 @@
                     whatsappButton = `<a href="https://wa.me/972${whatsappNum.replace(/^0/,'')}?text=${message}" class="action-btn" target="_blank"><div class="icon-circle"><span class="material-symbols-outlined">chat</span></div><span>וואטסאפ</span></a>`;
                 }
 
-                const telLink = `tel:0${p.phone}`;
+                const telLink = `tel:${p.phone}`;
 
                 const popupContent = `
                     <div class="popup-box">
