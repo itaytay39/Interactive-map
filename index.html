@@ -26,12 +26,16 @@
             --md-radius-xl: 28px;
         }
         
-        html { box-sizing: border-box; }
-        *, *:before, *:after { box-sizing: inherit; }
+        /* === תיקון פריסה ראשי === */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* מונע גלילה של כל הדף */
+        }
 
         body { 
             font-family: 'Heebo', sans-serif; 
-            margin: 0; 
             background: #f3f3f8;
             color: var(--md-on-surface);
         }
@@ -40,14 +44,16 @@
             max-width: 480px; 
             margin: 0 auto; 
             background: var(--md-surface); 
-            min-height: 100vh; 
+            height: 100%; 
+            display: flex;
+            flex-direction: column;
         }
 
         .header { 
-            background: var(--md-surface);
             padding: 1.5rem 1rem 1rem 1rem; 
             text-align: center; 
             border-bottom: 1px solid var(--md-surface-variant);
+            flex-shrink: 0; /* מונע מהכותרת להתכווץ */
         }
 
         .logo-maya { 
@@ -63,7 +69,10 @@
         .title { font-size: 1.5rem; font-weight: 700; color: var(--md-primary); }
         .subtitle { font-size: 1rem; color: var(--md-on-surface-variant); }
 
-        .search-container { padding: 1rem; background: var(--md-surface); }
+        .search-container { 
+            padding: 1rem; 
+            flex-shrink: 0; /* מונע מהחיפוש להתכווץ */
+        }
         .search-box { 
             display: flex; 
             align-items: center; 
@@ -76,7 +85,11 @@
         .search-icon { margin-left: 0.75rem; color: var(--md-on-surface-variant); }
         .search-input { flex: 1; border: none; outline: none; background: transparent; font-size: 1rem; }
 
-        .map-container { height: calc(100vh - 200px); position: relative; }
+        .map-container { 
+            flex-grow: 1; /* המפה תתפשט ותמלא את כל הגובה הפנוי */
+            position: relative; 
+            min-height: 200px; /* גובה מינימלי למניעת קריסה */
+        }
         #map { height: 100%; width: 100%; background-color: #e5e5e5; }
         
         .floating-btn {
@@ -91,9 +104,11 @@
             z-index: 1000; 
             box-shadow: var(--md-shadow-2);
         }
-        .reset-view-fab { bottom: 20px; left: 20px; }
+        .reset-view-fab { 
+            bottom: 20px; 
+            left: 20px; /* הזזה שמאלה כדי לפנות מקום לזום */
+        }
 
-        /* === עיצוב פופאפ חדש בהשראת גוגל מפות === */
         .leaflet-popup-content-wrapper { 
             background: var(--md-surface);
             box-shadow: var(--md-shadow-2);
@@ -160,7 +175,7 @@
         </div>
         <div class="map-container">
             <div id="map"></div>
-            <button id="reset-view-fab" class="floating-btn" title="מרכז מפה"><span class="material-symbols-outlined">explore</span></button>
+            <button id="reset-view-fab" class="floating-btn reset-view-fab" title="מרכז מפה"><span class="material-symbols-outlined">explore</span></button>
         </div>
     </div>
 
@@ -170,7 +185,7 @@
     <script>
         const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/sbhyvkuopsbjk';
         const GOOGLE_MAPS_API_KEY = 'AIzaSyCEo0QBID_qOEivVCmbcg8Z_YYY4cIjwj0';
-        const AUTO_REFRESH_INTERVAL = 600000; // 10 דקות במילישניות
+        const AUTO_REFRESH_INTERVAL = 600000;
 
         let allParticipants = [];
         const map = L.map('map', {
